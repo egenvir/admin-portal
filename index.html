@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公司管理后台 - 工具导航</title>
+    <style>
+        :root {
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --text: #1a1a2e;
+            --text-secondary: #6b7280;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --border: #e5e7eb;
+            --header-bg: #1e1b4b;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.2s ease;
+            --cat-oa: #4f46e5;
+            --cat-dev: #0891b2;
+            --cat-hr: #059669;
+            --cat-knowledge: #d97706;
+            --cat-data: #dc2626;
+            --cat-infra: #7c3aed;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--header-bg);
+            color: #fff;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #818cf8, #4f46e5);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .company-name {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-time {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a78bfa, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 28px 32px;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            margin-bottom: 32px;
+        }
+
+        .welcome-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .welcome-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .search-wrapper {
+            position: relative;
+            max-width: 600px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #9ca3af;
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 48px 0 48px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 15px;
+            color: var(--text);
+            background: var(--card-bg);
+            transition: var(--transition);
+            outline: none;
+            box-shadow: var(--shadow);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            padding: 4px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .search-clear:hover {
+            color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .search-clear.visible {
+            display: flex;
+        }
+
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .cat-tab {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .cat-tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .cat-tab.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .cat-tab .count {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .cat-tab.active .count {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 36px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Tool Grid */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        /* Tool Card */
+        .tool-card-wrapper {
+            position: relative;
+        }
+        .tool-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            transition: var(--transition);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: transparent;
+        }
+
+        .tool-card.cat-oa::before { background: var(--cat-oa); }
+        .tool-card.cat-oa:hover::before { width: 4px; }
+
+        .tool-card.cat-dev::before { background: var(--cat-dev); }
+        .tool-card.cat-dev:hover::before { width: 4px; }
+
+        .tool-card.cat-hr::before { background: var(--cat-hr); }
+        .tool-card.cat-hr:hover::before { width: 4px; }
+
+        .tool-card.cat-knowledge::before { background: var(--cat-knowledge); }
+        .tool-card.cat-knowledge:hover::before { width: 4px; }
+
+        .tool-card.cat-data::before { background: var(--cat-data); }
+        .tool-card.cat-data:hover::before { width: 4px; }
+
+        .tool-card.cat-infra::before { background: var(--cat-infra); }
+        .tool-card.cat-infra:hover::before { width: 4px; }
+
+        .tool-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .tool-icon.oa { background: linear-gradient(135deg, #818cf8, #4f46e5); }
+        .tool-icon.dev { background: linear-gradient(135deg, #22d3ee, #0891b2); }
+        .tool-icon.hr { background: linear-gradient(135deg, #34d399, #059669); }
+        .tool-icon.knowledge { background: linear-gradient(135deg, #fbbf24, #d97706); }
+        .tool-icon.data { background: linear-gradient(135deg, #f87171, #dc2626); }
+        .tool-icon.infra { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+
+        .tool-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tool-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .tool-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tool-arrow {
+            color: #d1d5db;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .tool-card:hover .tool-arrow {
+            color: var(--primary);
+            transform: translateX(3px);
+        }
+
+        .expand-arrow {
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.2s ease;
+        }
+        .expand-arrow.expanded {
+            transform: rotate(90deg);
+        }
+        .tool-card:hover .expand-arrow {
+            color: var(--primary);
+        }
+        .expand-arrow.expanded:hover {
+            transform: rotate(90deg) translateX(3px);
+        }
+
+        .tool-status {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-right: 4px;
+            flex-shrink: 0;
+        }
+
+        .tool-status.online { background: #22c55e; }
+        .tool-status.maintenance { background: #f59e0b; }
+
+        /* Sub-item cards */
+        .sub-items-wrapper {
+            grid-column: 1 / -1;
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            padding-left: 18px;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .sub-items-wrapper.expanded {
+            display: grid;
+        }
+
+        .sub-items-wrapper::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: -8px;
+            bottom: 4px;
+            width: 2px;
+            background: linear-gradient(180deg, #d1d5db 0%, #e5e7eb 100%);
+            border-radius: 1px;
+        }
+
+        .sub-items-wrapper::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: -8px;
+            width: 10px;
+            height: 10px;
+            border-left: 2px solid #d1d5db;
+            border-bottom: 2px solid #d1d5db;
+            border-radius: 0 0 0 4px;
+        }
+
+        .tool-card-child {
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: none;
+            font-size: 13px;
+        }
+
+        .tool-card-child:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            border-color: transparent;
+            background: #fafafa;
+        }
+
+        .tool-card-child .child-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+
+        .tool-card-child.cat-oa .child-dot { background: var(--cat-oa); }
+        .tool-card-child.cat-dev .child-dot { background: var(--cat-dev); }
+        .tool-card-child.cat-hr .child-dot { background: var(--cat-hr); }
+        .tool-card-child.cat-knowledge .child-dot { background: var(--cat-knowledge); }
+        .tool-card-child.cat-data .child-dot { background: var(--cat-data); }
+        .tool-card-child.cat-infra .child-dot { background: var(--cat-infra); }
+
+        .tool-card-child .child-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .tool-card-child .child-arrow {
+            color: #d1d5db;
+            transition: var(--transition);
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .tool-card-child:hover .child-arrow {
+            color: var(--primary);
+            transform: translateX(2px);
+        }
+
+        @media (max-width: 768px) {
+            .sub-items-wrapper {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                padding-left: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sub-items-wrapper {
+                grid-template-columns: 1fr 1fr;
+                padding-left: 18px;
+            }
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .quick-action-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: var(--shadow);
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .quick-action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .quick-action-info {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Todo Cards */
+        .todo-card {
+            flex: 2;
+            min-width: 240px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+
+        .todo-card .stat-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .todo-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .todo-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 0;
+            font-size: 14px;
+            color: var(--text);
+            border-bottom: 1px solid #f3f4f6;
+            transition: var(--transition);
+        }
+
+        .todo-list li:last-child {
+            border-bottom: none;
+        }
+
+        .todo-check {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            background: #fff;
+        }
+
+        .todo-check:hover {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+
+        .todo-check svg {
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .todo-list li.done {
+            text-decoration: line-through;
+            color: #9ca3af;
+            animation: strikeThrough 0.3s ease forwards;
+        }
+
+        .todo-list li.done .todo-check {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .todo-list li.done .todo-check svg {
+            opacity: 1;
+            color: #fff;
+        }
+
+        @keyframes strikeThrough {
+            to { text-decoration: line-through; color: #9ca3af; }
+        }
+
+        .todo-list li.removing {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        @keyframes slideOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(20px); height: 0; padding: 0; margin: 0; }
+        }
+
+        .todo-input-row {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+        }
+
+        .todo-input {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1.5px dashed var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+            background: transparent;
+        }
+
+        .todo-input:focus {
+            border-color: var(--primary);
+            border-style: solid;
+            background: #fff;
+        }
+
+        .todo-input::placeholder {
+            color: #b0b7c3;
+        }
+
+        .todo-card::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .todo-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .todo-card::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 2px;
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .no-results-text {
+            font-size: 15px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 28px 32px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 16px;
+            }
+
+            .main-container {
+                padding: 20px 16px;
+            }
+
+            .welcome-title {
+                font-size: 22px;
+            }
+
+            .tool-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-bar {
+                flex-direction: column;
+            }
+
+            .company-name {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .category-tabs {
+                gap: 6px;
+            }
+
+            .cat-tab {
+                padding: 6px 14px;
+                font-size: 13px;
+            }
+
+            .header-time {
+                display: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Edit Mode */
+        .edit-toggle {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-right: 12px;
+        }
+        .edit-toggle:hover { background: rgba(255,255,255,0.25); }
+        .edit-toggle.active { background: #f59e0b; border-color: #f59e0b; color: #1a1a2e; }
+
+        .edit-actions {
+            display: none;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            gap: 4px;
+            z-index: 10;
+        }
+        .edit-mode .edit-actions { display: flex; }
+        .edit-mode .tool-card { cursor: default; }
+        .edit-mode .tool-card:hover { transform: none; }
+
+        .edit-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+        .edit-btn-edit { background: #dbeafe; color: #2563eb; }
+        .edit-btn-edit:hover { background: #2563eb; color: #fff; }
+        .edit-btn-del { background: #fee2e2; color: #dc2626; }
+        .edit-btn-del:hover { background: #dc2626; color: #fff; }
+
+        .add-tool-btn {
+            display: none;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            margin: 0 auto 16px;
+        }
+        .edit-mode .add-tool-btn { display: block; }
+        .add-tool-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 28px;
+            width: 90%;
+            max-width: 520px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .modal h3 { font-size: 18px; margin-bottom: 20px; color: var(--text); }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: var(--transition);
+            outline: none;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+        }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+
+        .form-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .form-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 8px; border-radius: 12px; font-size: 12px;
+            background: #eef2ff; color: var(--primary);
+        }
+        .form-tag button { background: none; border: none; cursor: pointer; color: inherit; font-size: 14px; padding: 0 0 0 2px; }
+        .tag-input { width: 80px !important; padding: 4px 8px !important; font-size: 12px !important; }
+
+        .children-editor { background: #f9fafb; border-radius: 8px; padding: 14px; margin-top: 8px; }
+        .children-editor h4 { font-size: 14px; margin-bottom: 10px; color: var(--text); }
+        .child-row {
+            display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
+            background: #fff; padding: 8px; border-radius: 6px; border: 1px solid var(--border);
+        }
+        .child-row input { flex: 1; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+        .child-row button {
+            width: 28px; height: 28px; border-radius: 4px; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+        }
+        .btn-add-child { background: #d1fae5; color: #059669; }
+        .btn-add-child:hover { background: #059669; color: #fff; }
+        .btn-remove-child { background: #fee2e2; color: #dc2626; }
+        .btn-remove-child:hover { background: #dc2626; color: #fff; }
+
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .btn { padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: var(--transition); }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: #f3f4f6; color: var(--text); }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .btn-danger { background: #fee2e2; color: #dc2626; }
+        .btn-danger:hover { background: #dc2626; color: #fff; }
+
+        .export-bar {
+            display: none; text-align: center; padding: 12px; margin-bottom: 16px;
+            background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm);
+            font-size: 13px; color: #92400e;
+        }
+        .edit-mode .export-bar { display: block; }
+        .export-bar button {
+            background: #f59e0b; color: #fff; border: none; padding: 4px 14px; border-radius: 12px;
+            cursor: pointer; font-size: 12px; font-weight: 500; margin: 0 4px;
+        }
+        .export-bar button:hover { background: #d97706; }
+
+        /* Password Modal */
+        .pwd-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+        .pwd-overlay.show { display: flex; }
+
+        .pwd-box {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            width: 90%;
+            max-width: 360px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .pwd-box h3 { font-size: 18px; margin-bottom: 6px; color: var(--text); }
+        .pwd-box .pwd-hint { font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; }
+        .pwd-box input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            text-align: center;
+            letter-spacing: 4px;
+            outline: none;
+            transition: var(--transition);
+        }
+        .pwd-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+        .pwd-box .pwd-error { color: #dc2626; font-size: 13px; margin-top: 8px; min-height: 20px; }
+        .pwd-box .pwd-btns { display: flex; gap: 8px; margin-top: 14px; }
+        .pwd-box .pwd-btns button { flex: 1; padding: 9px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: var(--transition); }
+        .pwd-box .btn-confirm { background: var(--primary); color: #fff; }
+        .pwd-box .btn-confirm:hover { background: var(--primary-hover); }
+        .pwd-box .btn-cancel { background: #f3f4f6; color: var(--text); }
+        .pwd-box .btn-cancel:hover { background: #e5e7eb; }
+
+        .tool-card {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .tool-card:nth-child(1) { animation-delay: 0.02s; }
+        .tool-card:nth-child(2) { animation-delay: 0.04s; }
+        .tool-card:nth-child(3) { animation-delay: 0.06s; }
+        .tool-card:nth-child(4) { animation-delay: 0.08s; }
+        .tool-card:nth-child(5) { animation-delay: 0.10s; }
+        .tool-card:nth-child(6) { animation-delay: 0.12s; }
+        .tool-card:nth-child(7) { animation-delay: 0.14s; }
+        .tool-card:nth-child(8) { animation-delay: 0.16s; }
+        .tool-card:nth-child(9) { animation-delay: 0.18s; }
+        .tool-card:nth-child(10) { animation-delay: 0.20s; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo-icon">🐳</div>
+            <span class="company-name">一鲸环保 · 管理后台</span>
+        </div>
+        <div class="header-right">
+            <button class="edit-toggle" id="editToggle" title="编辑模式">✏️ 编辑</button>
+            <span class="header-time" id="headerTime"></span>
+            <div class="user-avatar" title="管理员">鲸</div>
+        </div>
+    </header>
+
+    <!-- Export Bar -->
+    <div class="export-bar" id="exportBar">
+        编辑模式已开启 | 
+        <button onclick="exportData()">📋 导出 JSON</button>
+        <button onclick="resetData()">🔄 恢复默认</button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-container">
+
+        <!-- Welcome -->
+        <section class="welcome-section">
+            <h1 class="welcome-title">欢迎回来，鲸生 👋</h1>
+            <p class="welcome-subtitle">以下是公司内部工具导航，点击即可快速访问</p>
+        </section>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTools">0</div>
+                <div class="stat-label">可用工具</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="onlineTools">0</div>
+                <div class="stat-label">运行正常</div>
+            </div>
+            <div class="stat-card todo-card" id="regularCard">
+                <div class="stat-label">📋 定期事项</div>
+                <ul class="todo-list" id="regularList"></ul>
+                <div class="todo-input-row">
+                    <input type="text" class="todo-input" placeholder="+ 添加定期事项" id="regularInput">
+                </div>
+            </div>
+            <div class="stat-card todo-card" id="todoCard">
+                <div class="stat-label">✅ 待办事项</div>
+                <ul class="todo-list" id="todoList"></ul>
+                <div class="todo-input-row">
+                    <input type="text" class="todo-input" placeholder="+ 添加待办事项" id="todoInput">
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索工具名称、描述...">
+                <button class="search-clear" id="searchClear" title="清除">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="category-tabs" id="categoryTabs">
+            <button class="cat-tab active" data-cat="all">全部 <span class="count" id="countAll"></span></button>
+        </div>
+
+        <!-- Add Tool Button -->
+        <button class="add-tool-btn" onclick="openAddModal()">+ 添加新工具</button>
+
+        <!-- Tools Container -->
+        <div id="toolsContainer"></div>
+
+        <!-- No Results -->
+        <div class="no-results" id="noResults" style="display:none;">
+            <div class="no-results-icon">🔍</div>
+            <div class="no-results-text">未找到匹配的工具，试试其他关键词</div>
+        </div>
+    </main>
+
+    <!-- Password Modal -->
+    <div class="pwd-overlay" id="pwdOverlay">
+        <div class="pwd-box">
+            <h3>🔒 编辑权限验证</h3>
+            <p class="pwd-hint">请输入管理密码以进入编辑模式</p>
+            <input type="password" id="pwdInput" placeholder="输入密码" autocomplete="off">
+            <div class="pwd-error" id="pwdError"></div>
+            <div class="pwd-btns">
+                <button class="btn-cancel" onclick="cancelPassword()">取消</button>
+                <button class="btn-confirm" onclick="verifyPassword()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="editModal">
+            <h3 id="modalTitle">编辑工具</h3>
+            <div class="form-group">
+                <label>工具名称</label>
+                <input type="text" id="formName" placeholder="如：企业微信">
+            </div>
+            <div class="form-group">
+                <label>描述</label>
+                <input type="text" id="formDesc" placeholder="一句话描述这个工具">
+            </div>
+            <div class="form-group">
+                <label>链接地址</label>
+                <input type="text" id="formUrl" placeholder="https://...">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>分类</label>
+                    <select id="formCategory"></select>
+                </div>
+                <div class="form-group">
+                    <label>图标文字</label>
+                    <input type="text" id="formIcon" placeholder="一个字" maxlength="2">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>状态</label>
+                <select id="formStatus">
+                    <option value="online">🟢 正常运行</option>
+                    <option value="maintenance">🟡 维护中</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>搜索标签（回车添加）</label>
+                <input type="text" class="tag-input" id="tagInput" placeholder="输入后按回车">
+                <div class="form-tags" id="tagList"></div>
+            </div>
+            <div class="children-editor" id="childrenArea" style="display:none;">
+                <h4>子项列表</h4>
+                <div id="childrenList"></div>
+                <button class="btn-add-child" onclick="addChildField()" style="margin-top:6px;">+ 添加子项</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveTool()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 一鲸环保 · 内部管理后台 · 如有问题请联系 IT 支持</p>
+    </footer>
+
+    <script>
+        // ============ 工具数据配置 ============
+        // 你可以在这里自由增删改工具入口
+        const toolsData = [
+            // ---- 办公协作 ----
+            {
+                name: '企业微信',
+                desc: '内部即时通讯与协作平台',
+                url: 'https://work.weixin.qq.com/',
+                category: 'oa',
+                icon: '微',
+                iconClass: 'oa',
+                catClass: 'cat-oa',
+                status: 'online',
+                tags: ['聊天', '通讯', 'IM', 'wecom']
+            },
+            {
+                name: '腾讯文档',
+                desc: '在线文档、表格与幻灯片协作',
+                url: 'https://docs.qq.com/',
+                category: 'oa',
+                icon: '文',
+                iconClass: 'oa',
+                catClass: 'cat-oa',
+                status: 'online',
+                tags: ['文档', '表格', '协作', 'docs']
+            },
+            {
+                name: '腾讯会议',
+                desc: '高清视频会议与屏幕共享',
+                url: 'https://meeting.tencent.com/',
+                category: 'oa',
+                icon: '会',
+                iconClass: 'oa',
+                catClass: 'cat-oa',
+                status: 'online',
+                tags: ['会议', '视频', 'meeting', '远程']
+            },
+            {
+                name: '企业邮箱',
+                desc: '公司域名邮箱服务',
+                url: 'https://exmail.qq.com/',
+                category: 'oa',
+                icon: '邮',
+                iconClass: 'oa',
+                catClass: 'cat-oa',
+                status: 'online',
+                tags: ['邮箱', '邮件', 'mail']
+            },
+            {
+                name: '腾讯问卷',
+                desc: '在线调查问卷与表单收集',
+                url: 'https://wj.qq.com/',
+                category: 'oa',
+                icon: '卷',
+                iconClass: 'oa',
+                catClass: 'cat-oa',
+                status: 'online',
+                tags: ['问卷', '调查', '表单']
+            },
+            {
+                name: '微云',
+                desc: '企业云存储与文件共享',
+                url: 'https://www.weiyun.com/',
+                category: 'oa',
+                icon: '云',
+                iconClass: 'oa',
+                catClass: 'cat-oa',
+                status: 'online',
+                tags: ['云盘', '存储', '文件共享']
+            },
+
+            // ---- 财务管理 ----
+            {
+                name: '成本核算',
+                desc: '各部门成本归集、核算与利润分析',
+                url: '#',
+                category: 'dev',
+                icon: '本',
+                iconClass: 'dev',
+                catClass: 'cat-dev',
+                status: 'online',
+                tags: ['成本', '核算', '利润', '分摊'],
+                children: [
+                    { name: '总成本', url: '#', tags: ['总成本', '汇总'] },
+                    { name: '运维部', url: '#', tags: ['运维', '部门'] },
+                    { name: '比对项', url: '#', tags: ['比对', '差异'] },
+                    { name: '试剂部', url: '#', tags: ['试剂', '部门'] },
+                    { name: '污水处理部', url: '#', tags: ['污水', '部门'] },
+                    { name: '工程部', url: '#', tags: ['工程', '部门'] },
+                    { name: '综合部', url: '#', tags: ['综合', '部门'] },
+                    { name: '其他', url: '#', tags: ['其他', '杂项'] },
+                ]
+            },
+            {
+                name: '薪酬管理',
+                desc: '员工薪资计算、发放与个税申报',
+                url: '#',
+                category: 'dev',
+                icon: '酬',
+                iconClass: 'dev',
+                catClass: 'cat-dev',
+                status: 'online',
+                tags: ['薪资', '个税', '社保', '薪酬']
+            },
+            {
+                name: '税务管理',
+                desc: '企业增值税、企业所得税申报与管理',
+                url: '#',
+                category: 'dev',
+                icon: '税',
+                iconClass: 'dev',
+                catClass: 'cat-dev',
+                status: 'online',
+                tags: ['税务', '增值税', '申报', '汇算']
+            },
+
+            // ---- 人事行政 ----
+            {
+                name: 'OA 审批',
+                desc: '请假、报销、用章等流程审批',
+                url: '#',
+                category: 'hr',
+                icon: '审',
+                iconClass: 'hr',
+                catClass: 'cat-hr',
+                status: 'online',
+                tags: ['审批', '请假', '报销', '流程']
+            },
+            {
+                name: '考勤打卡',
+                desc: '员工考勤与出勤统计',
+                url: '#',
+                category: 'hr',
+                icon: '勤',
+                iconClass: 'hr',
+                catClass: 'cat-hr',
+                status: 'online',
+                tags: ['考勤', '打卡', '出勤']
+            },
+            {
+                name: '薪资查询',
+                desc: '工资条与薪酬明细查看',
+                url: '#',
+                category: 'hr',
+                icon: '薪',
+                iconClass: 'hr',
+                catClass: 'cat-hr',
+                status: 'online',
+                tags: ['薪资', '工资', '薪酬']
+            },
+            {
+                name: '招聘系统',
+                desc: '职位发布与候选人管理',
+                url: '#',
+                category: 'hr',
+                icon: '招',
+                iconClass: 'hr',
+                catClass: 'cat-hr',
+                status: 'online',
+                tags: ['招聘', '面试', '候选人']
+            },
+
+            // ---- 知识管理 ----
+            {
+                name: 'iWiki',
+                desc: '内部知识库与技术文档中心',
+                url: 'https://iwiki.woa.com/',
+                category: 'knowledge',
+                icon: '知',
+                iconClass: 'knowledge',
+                catClass: 'cat-knowledge',
+                status: 'online',
+                tags: ['Wiki', '文档', '知识库']
+            },
+            {
+                name: '乐享知识库',
+                desc: '团队知识管理与经验沉淀',
+                url: 'https://lexiangla.com/',
+                category: 'knowledge',
+                icon: '享',
+                iconClass: 'knowledge',
+                catClass: 'cat-knowledge',
+                status: 'online',
+                tags: ['知识库', '经验', '沉淀']
+            },
+            {
+                name: '培训平台',
+                desc: '员工在线学习与培训课程',
+                url: '#',
+                category: 'knowledge',
+                icon: '学',
+                iconClass: 'knowledge',
+                catClass: 'cat-knowledge',
+                status: 'online',
+                tags: ['培训', '学习', '课程']
+            },
+
+            // ---- 数据分析 ----
+            {
+                name: '数据平台',
+                desc: '企业数据仓库与BI分析',
+                url: '#',
+                category: 'data',
+                icon: '数',
+                iconClass: 'data',
+                catClass: 'cat-data',
+                status: 'maintenance',
+                tags: ['数据', 'BI', '分析', '报表']
+            },
+            {
+                name: '监控告警',
+                desc: '服务监控与异常告警平台',
+                url: '#',
+                category: 'data',
+                icon: '监',
+                iconClass: 'data',
+                catClass: 'cat-data',
+                status: 'online',
+                tags: ['监控', '告警', '运维']
+            },
+            {
+                name: '日志平台',
+                desc: '集中式日志查询与分析',
+                url: '#',
+                category: 'data',
+                icon: '志',
+                iconClass: 'data',
+                catClass: 'cat-data',
+                status: 'online',
+                tags: ['日志', '查询', 'ELK']
+            },
+
+            // ---- 基础设施 ----
+            {
+                name: '云控制台',
+                desc: '云资源管理与配置',
+                url: '#',
+                category: 'infra',
+                icon: '控',
+                iconClass: 'infra',
+                catClass: 'cat-infra',
+                status: 'online',
+                tags: ['云服务', '资源', '配置']
+            },
+            {
+                name: '容器平台',
+                desc: 'Kubernetes 集群与容器管理',
+                url: '#',
+                category: 'infra',
+                icon: '容',
+                iconClass: 'infra',
+                catClass: 'cat-infra',
+                status: 'online',
+                tags: ['K8s', '容器', 'Docker']
+            },
+            {
+                name: 'DNS 管理',
+                desc: '域名解析与 SSL 证书管理',
+                url: '#',
+                category: 'infra',
+                icon: '域',
+                iconClass: 'infra',
+                catClass: 'cat-infra',
+                status: 'online',
+                tags: ['DNS', '域名', 'SSL']
+            },
+            {
+                name: '堡垒机',
+                desc: '服务器安全访问与审计',
+                url: '#',
+                category: 'infra',
+                icon: '堡',
+                iconClass: 'infra',
+                catClass: 'cat-infra',
+                status: 'online',
+                tags: ['安全', '服务器', '审计']
+            },
+        ];
+
+        const categories = [
+            { key: 'oa', label: '办公协作', icon: '💼', color: '#4f46e5' },
+            { key: 'dev', label: '财务管理', icon: '💰', color: '#0891b2' },
+            { key: 'hr', label: '人事行政', icon: '👥', color: '#059669' },
+            { key: 'knowledge', label: '知识管理', icon: '📚', color: '#d97706' },
+            { key: 'data', label: '数据分析', icon: '📊', color: '#dc2626' },
+            { key: 'infra', label: '基础设施', icon: '🖥️', color: '#7c3aed' },
+        ];
+
+        // ============ 初始化 ============
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        function renderCategoryTabs() {
+            const tabContainer = document.getElementById('categoryTabs');
+            const allCount = toolsData.length;
+            let tabsHTML = `<button class="cat-tab active" data-cat="all">全部 <span class="count">${allCount}</span></button>`;
+
+            categories.forEach(cat => {
+                const count = toolsData.filter(t => t.category === cat.key).length;
+                tabsHTML += `<button class="cat-tab" data-cat="${cat.key}">${cat.icon} ${cat.label} <span class="count">${count}</span></button>`;
+            });
+
+            tabContainer.innerHTML = tabsHTML;
+
+            // Bind tab clicks
+            tabContainer.querySelectorAll('.cat-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabContainer.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentCategory = tab.dataset.cat;
+                    renderTools();
+                });
+            });
+        }
+
+        function renderTools() {
+            const container = document.getElementById('toolsContainer');
+            const noResults = document.getElementById('noResults');
+
+            // Filter
+            let filtered = toolsData;
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(t => t.category === currentCategory);
+            }
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                filtered = filtered.filter(t => {
+                    const selfMatch = t.name.toLowerCase().includes(q) ||
+                        t.desc.toLowerCase().includes(q) ||
+                        t.tags.some(tag => tag.toLowerCase().includes(q));
+                    if (selfMatch) return true;
+                    // Also match if any child matches
+                    if (t.children) {
+                        return t.children.some(c =>
+                            c.name.toLowerCase().includes(q) ||
+                            (c.tags && c.tags.some(tag => tag.toLowerCase().includes(q)))
+                        );
+                    }
+                    return false;
+                });
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            // Group by category
+            const grouped = {};
+            categories.forEach(cat => {
+                grouped[cat.key] = filtered.filter(t => t.category === cat.key);
+            });
+
+            let html = '';
+            categories.forEach(cat => {
+                const groupTools = grouped[cat.key];
+                if (groupTools.length === 0) return;
+
+                html += `
+                <section class="section">
+                    <div class="section-header">
+                        <div class="section-icon" style="background:${cat.color}20;color:${cat.color};">${cat.icon}</div>
+                        <h2 class="section-title">${cat.label}</h2>
+                        <span style="color:#9ca3af;font-size:13px;">${groupTools.length} 个工具</span>
+                    </div>
+                    <div class="tool-grid">
+                `;
+
+                groupTools.forEach((tool, toolIdx) => {
+                    const statusDot = tool.status === 'maintenance'
+                        ? '<span class="tool-status maintenance" title="维护中"></span>'
+                        : '<span class="tool-status online" title="正常运行"></span>';
+
+                    const globalIdx = toolsData.indexOf(tool);
+                    const hasChildren = tool.children && tool.children.length > 0;
+                    const isExpanded = expandedItems.has(globalIdx);
+
+                    html += `
+                    <div class="tool-card-wrapper" style="position:relative;">
+                    <a href="${hasChildren ? 'javascript:void(0)' : tool.url}" class="tool-card ${tool.catClass}" target="${hasChildren ? '_self' : '_blank'}" rel="noopener" title="${tool.desc}"
+                       onclick="${hasChildren && !editMode ? `event.preventDefault();toggleExpand(${globalIdx});` : (editMode ? `event.preventDefault(); openEditModal(${globalIdx});` : '')}">
+                        <div class="tool-icon ${tool.iconClass}">${tool.icon}</div>
+                        <div class="tool-info">
+                            <div class="tool-name">${statusDot}${tool.name}</div>
+                            <div class="tool-desc">${tool.desc}</div>
+                        </div>
+                        ${hasChildren ? `
+                        <svg class="tool-arrow expand-arrow${isExpanded ? ' expanded' : ''}" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="${isExpanded ? '18 15 12 9 6 15' : '9 18 15 12 9 6'}"/>
+                        </svg>
+                        ` : `
+                        <svg class="tool-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                        `}
+                    </a>
+                    <div class="edit-actions">
+                        <button class="edit-btn edit-btn-edit" onclick="event.stopPropagation();openEditModal(${globalIdx});" title="编辑">✎</button>
+                        <button class="edit-btn edit-btn-del" onclick="event.stopPropagation();deleteTool(${globalIdx});" title="删除">✕</button>
+                    </div>`;
+
+                    // Render children as sub-cards (collapsible)
+                    if (hasChildren) {
+                        html += `<div class="sub-items-wrapper${isExpanded ? ' expanded' : ''}" id="subItems${globalIdx}">`;
+                        if (isExpanded) {
+                            tool.children.forEach(child => {
+                                html += `
+                                <a href="${child.url}" class="tool-card-child ${tool.catClass}" target="_blank" rel="noopener">
+                                    <span class="child-dot"></span>
+                                    <span class="child-name">${child.name}</span>
+                                    <svg class="child-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9 18 15 12 9 6"/>
+                                    </svg>
+                                </a>`;
+                            });
+                        }
+                        html += `</div>`;
+                    }
+                    html += `</div>`;  // close wrapper div
+                });
+
+                html += `</div></section>`;
+            });
+
+            container.innerHTML = html;
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = toolsData.reduce((sum, t) => sum + 1 + (t.children ? t.children.length : 0), 0);
+            document.getElementById('totalTools').textContent = total;
+            document.getElementById('onlineTools').textContent =
+                toolsData.filter(t => t.status === 'online').length + 8;
+        }
+
+        // Search
+        const searchInput = document.getElementById('searchInput');
+        const searchClear = document.getElementById('searchClear');
+
+        searchInput.addEventListener('input', function() {
+            searchQuery = this.value.trim();
+            searchClear.classList.toggle('visible', searchQuery.length > 0);
+            renderTools();
+        });
+
+        searchClear.addEventListener('click', function() {
+            searchInput.value = '';
+            searchQuery = '';
+            searchClear.classList.remove('visible');
+            renderTools();
+            searchInput.focus();
+        });
+
+        // Keyboard shortcut: Ctrl+K to focus search
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            document.getElementById('headerTime').textContent = now.toLocaleString('zh-CN', options);
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // ============ Edit Mode ============
+        const EDIT_PASSWORD = 'GQ20121215';  // ← 修改密码在这里
+        let editMode = false;
+        let editingIndex = -1;
+        let editingTags = [];
+        let editingChildren = [];
+        const expandedItems = new Set();  // Track which items are expanded
+
+        document.getElementById('editToggle').addEventListener('click', function() {
+            if (editMode) {
+                // Exit edit mode
+                editMode = false;
+                this.classList.remove('active');
+                this.textContent = '✏️ 编辑';
+                document.getElementById('exportBar').style.display = 'none';
+                document.body.classList.remove('edit-mode');
+                renderTools();
+            } else {
+                // Show password prompt
+                document.getElementById('pwdInput').value = '';
+                document.getElementById('pwdError').textContent = '';
+                document.getElementById('pwdOverlay').classList.add('show');
+                setTimeout(() => document.getElementById('pwdInput').focus(), 100);
+            }
+        });
+
+        function verifyPassword() {
+            const input = document.getElementById('pwdInput').value;
+            if (input === EDIT_PASSWORD) {
+                document.getElementById('pwdOverlay').classList.remove('show');
+                enterEditMode();
+            } else {
+                document.getElementById('pwdError').textContent = '密码错误，请重试';
+                document.getElementById('pwdInput').value = '';
+                document.getElementById('pwdInput').focus();
+            }
+        }
+
+        function cancelPassword() {
+            document.getElementById('pwdOverlay').classList.remove('show');
+        }
+
+        document.getElementById('pwdInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') verifyPassword();
+        });
+
+        document.getElementById('pwdOverlay').addEventListener('click', function(e) {
+            if (e.target === this) cancelPassword();
+        });
+
+        function enterEditMode() {
+            editMode = true;
+            const btn = document.getElementById('editToggle');
+            btn.classList.add('active');
+            btn.textContent = '👁️ 退出编辑';
+            document.getElementById('exportBar').style.display = 'block';
+            document.body.classList.add('edit-mode');
+            renderTools();
+        }
+
+        function toggleExpand(idx) {
+            if (expandedItems.has(idx)) {
+                expandedItems.delete(idx);
+            } else {
+                expandedItems.add(idx);
+            }
+            renderTools();
+        }
+
+        // Load from localStorage
+        const savedData = localStorage.getItem('admin_portal_tools');
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                toolsData.length = 0;
+                parsed.forEach(t => toolsData.push(t));
+            } catch(e) {}
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('admin_portal_tools', JSON.stringify(toolsData));
+        }
+
+        function openEditModal(idx) {
+            if (!editMode) return;
+            editingIndex = idx;
+            const tool = toolsData[idx];
+            document.getElementById('modalTitle').textContent = '编辑工具';
+            document.getElementById('formName').value = tool.name;
+            document.getElementById('formDesc').value = tool.desc;
+            document.getElementById('formUrl').value = tool.url;
+            document.getElementById('formIcon').value = tool.icon;
+            document.getElementById('formStatus').value = tool.status;
+
+            const catSelect = document.getElementById('formCategory');
+            catSelect.innerHTML = categories.map(c =>
+                `<option value="${c.key}" ${c.key===tool.category?'selected':''}>${c.icon} ${c.label}</option>`
+            ).join('');
+
+            editingTags = [...tool.tags];
+            editingChildren = tool.children ? tool.children.map(c => ({...c})) : [];
+            renderTagList();
+            renderChildFields();
+
+            document.getElementById('childrenArea').style.display = 'block';
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        function openAddModal() {
+            if (!editMode) return;
+            editingIndex = -1;
+            document.getElementById('modalTitle').textContent = '添加工具';
+            document.getElementById('formName').value = '';
+            document.getElementById('formDesc').value = '';
+            document.getElementById('formUrl').value = '#';
+            document.getElementById('formIcon').value = '';
+            document.getElementById('formStatus').value = 'online';
+
+            const catSelect = document.getElementById('formCategory');
+            catSelect.innerHTML = categories.map(c =>
+                `<option value="${c.key}">${c.icon} ${c.label}</option>`
+            ).join('');
+            catSelect.value = currentCategory !== 'all' ? currentCategory : 'oa';
+
+            editingTags = [];
+            editingChildren = [];
+            renderTagList();
+            renderChildFields();
+            document.getElementById('childrenArea').style.display = 'block';
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+        }
+
+        function saveTool() {
+            const cat = document.getElementById('formCategory').value;
+            const tool = {
+                name: document.getElementById('formName').value.trim(),
+                desc: document.getElementById('formDesc').value.trim(),
+                url: document.getElementById('formUrl').value.trim(),
+                category: cat,
+                icon: document.getElementById('formIcon').value.trim() || document.getElementById('formName').value.trim().charAt(0),
+                iconClass: cat,
+                catClass: 'cat-' + cat,
+                status: document.getElementById('formStatus').value,
+                tags: editingTags,
+            };
+            if (editingChildren.length > 0) tool.children = editingChildren;
+
+            if (!tool.name) { alert('请输入工具名称'); return; }
+
+            if (editingIndex >= 0) {
+                toolsData[editingIndex] = tool;
+            } else {
+                toolsData.push(tool);
+            }
+
+            saveToStorage();
+            closeModal();
+            renderCategoryTabs();
+            renderTools();
+        }
+
+        function deleteTool(idx) {
+            if (!confirm('确定删除 "' + toolsData[idx].name + '" 吗？此操作不可撤销。')) return;
+            toolsData.splice(idx, 1);
+            saveToStorage();
+            renderCategoryTabs();
+            renderTools();
+        }
+
+        // Tags
+        document.getElementById('tagInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = this.value.trim();
+                if (val && !editingTags.includes(val)) {
+                    editingTags.push(val);
+                    renderTagList();
+                }
+                this.value = '';
+            }
+        });
+
+        function removeTag(idx) {
+            editingTags.splice(idx, 1);
+            renderTagList();
+        }
+
+        function renderTagList() {
+            document.getElementById('tagList').innerHTML = editingTags.map((t, i) =>
+                `<span class="form-tag">${t}<button onclick="removeTag(${i})">&times;</button></span>`
+            ).join('');
+        }
+
+        // Children
+        function renderChildFields() {
+            const list = document.getElementById('childrenList');
+            list.innerHTML = '';
+            editingChildren.forEach((c, i) => {
+                const row = document.createElement('div');
+                row.className = 'child-row';
+                row.dataset.index = i;
+
+                const nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.value = c.name;
+                nameInput.placeholder = '名称';
+                nameInput.addEventListener('input', function() { editingChildren[i].name = this.value; });
+
+                const urlInput = document.createElement('input');
+                urlInput.type = 'text';
+                urlInput.value = c.url;
+                urlInput.placeholder = '链接';
+                urlInput.style.flex = '2';
+                urlInput.addEventListener('input', function() { editingChildren[i].url = this.value; });
+
+                const tagsInput = document.createElement('input');
+                tagsInput.type = 'text';
+                tagsInput.value = (c.tags || []).join(',');
+                tagsInput.placeholder = '标签,逗号分隔';
+                tagsInput.style.flex = '1.5';
+                tagsInput.addEventListener('input', function() {
+                    editingChildren[i].tags = this.value.split(',').map(s => s.trim()).filter(s => s);
+                });
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn-remove-child';
+                removeBtn.textContent = '✕';
+                removeBtn.addEventListener('click', function() { removeChildField(i); });
+
+                row.appendChild(nameInput);
+                row.appendChild(urlInput);
+                row.appendChild(tagsInput);
+                row.appendChild(removeBtn);
+                list.appendChild(row);
+            });
+        }
+
+        function addChildField() {
+            editingChildren.push({ name: '', url: '#', tags: [] });
+            renderChildFields();
+        }
+
+        function removeChildField(idx) {
+            editingChildren.splice(idx, 1);
+            renderChildFields();
+        }
+
+        function exportData() {
+            const json = JSON.stringify(toolsData, null, 2);
+            navigator.clipboard.writeText(json).then(() => alert('配置已复制到剪贴板！'));
+        }
+
+        function resetData() {
+            if (!confirm('确定恢复默认配置？你的修改将丢失。')) return;
+            localStorage.removeItem('admin_portal_tools');
+            location.reload();
+        }
+
+        // Close modal on overlay click
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ============ Todo Lists ============
+        let regularTodos = JSON.parse(localStorage.getItem('todos_regular') || '[]');
+        let workTodos = JSON.parse(localStorage.getItem('todos_work') || '[]');
+
+        function saveTodos() {
+            localStorage.setItem('todos_regular', JSON.stringify(regularTodos));
+            localStorage.setItem('todos_work', JSON.stringify(workTodos));
+        }
+
+        function renderTodos(listId, items, key) {
+            const list = document.getElementById(listId);
+            list.innerHTML = items.map((item, i) => `
+                <li data-idx="${i}">
+                    <span class="todo-check" onclick="completeTodo('${key}', ${i})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </span>
+                    <span>${escapeHtml(item)}</span>
+                </li>
+            `).join('');
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function addTodo(inputId, items, listId, key) {
+            const input = document.getElementById(inputId);
+            const val = input.value.trim();
+            if (!val) return;
+            items.push(val);
+            saveTodos();
+            renderTodos(listId, items, key);
+            input.value = '';
+            input.focus();
+        }
+
+        function completeTodo(key, idx) {
+            const items = key === 'regular' ? regularTodos : workTodos;
+            const listId = key === 'regular' ? 'regularList' : 'todoList';
+            const li = document.getElementById(listId).children[idx];
+            if (li) {
+                li.classList.add('done');
+                setTimeout(() => {
+                    items.splice(idx, 1);
+                    saveTodos();
+                    renderTodos(listId, items, key);
+                }, 300);
+            }
+        }
+
+        document.getElementById('regularInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') addTodo('regularInput', regularTodos, 'regularList', 'regular');
+        });
+        document.getElementById('todoInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') addTodo('todoInput', workTodos, 'todoList', 'work');
+        });
+
+        renderTodos('regularList', regularTodos, 'regular');
+        renderTodos('todoList', workTodos, 'work');
+
+        // Initialize
+        renderCategoryTabs();
+        renderTools();
+    </script>
+</body>
+</html>
