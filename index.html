@@ -1016,6 +1016,30 @@
         .pwd-box .btn-cancel { background: #f3f4f6; color: var(--text); }
         .pwd-box .btn-cancel:hover { background: #e5e7eb; }
 
+        /* Drag & Drop Sort */
+        .tool-card-wrapper.dragging {
+            opacity: 0.4;
+            transform: scale(0.97);
+        }
+        .tool-card-wrapper.drag-over {
+            outline: 2px dashed var(--primary);
+            outline-offset: -2px;
+            border-radius: var(--radius);
+        }
+        .tool-card-wrapper.drag-over .tool-card {
+            border-color: var(--primary);
+            background: #f5f3ff;
+        }
+        .sort-hint {
+            display: none;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 4px 0 12px;
+            opacity: 0.7;
+        }
+        .edit-mode .sort-hint { display: block; }
+
         .tool-card {
             animation: fadeIn 0.3s ease forwards;
         }
@@ -1560,6 +1584,7 @@
                         <h2 class="section-title">${cat.label}</h2>
                         <span style="color:#9ca3af;font-size:13px;">${groupTools.length} 个工具</span>
                     </div>
+                    <div class="sort-hint">↕️ 拖拽卡片可调整排序</div>
                     <div class="tool-grid">
                 `;
 
@@ -1573,7 +1598,7 @@
                     const isExpanded = expandedItems.has(globalIdx);
 
                     html += `
-                    <div class="tool-card-wrapper" style="position:relative;">
+                    <div class="tool-card-wrapper" style="position:relative;" data-tool-idx="${globalIdx}">
                     <a href="${hasChildren ? 'javascript:void(0)' : tool.url}" class="tool-card ${tool.catClass}" target="${hasChildren ? '_self' : '_blank'}" rel="noopener" title="${tool.desc}"
                        onclick="${hasChildren && !editMode ? `event.preventDefault();toggleExpand(${globalIdx});` : (editMode ? `event.preventDefault(); openEditModal(${globalIdx});` : '')}">
                         <div class="tool-icon ${tool.iconClass}">${tool.icon}</div>
@@ -1621,6 +1646,7 @@
 
             container.innerHTML = html;
             updateStats();
+            initDragSort();
         }
 
         function updateStats() {
@@ -1689,6 +1715,7 @@
                 this.textContent = '✏️ 编辑';
                 document.getElementById('exportBar').style.display = 'none';
                 document.body.classList.remove('edit-mode');
+                document.querySelectorAll('.tool-card').forEach(c => c.setAttribute('draggable', 'false'));
                 renderTools();
             } else {
                 // Show password prompt
@@ -1731,6 +1758,8 @@
             document.getElementById('exportBar').style.display = 'block';
             document.body.classList.add('edit-mode');
             renderTools();
+            // Enable draggable on all cards
+            document.querySelectorAll('.tool-card').forEach(c => c.setAttribute('draggable', 'true'));
         }
 
         function toggleExpand(idx) {
@@ -2003,6 +2032,79 @@
 
         renderTodos('regularList', regularTodos, 'regular');
         renderTodos('todoList', workTodos, 'work');
+
+        // ============ Drag & Drop Sort ============
+        let dragSrcIdx = null;
+
+        function initDragSort() {
+            const wrappers = document.querySelectorAll('.tool-card-wrapper');
+            wrappers.forEach(wrapper => {
+                const card = wrapper.querySelector('.tool-card');
+                if (!card) return;
+
+                // Make cards draggable in edit mode
+                card.setAttribute('draggable', editMode ? 'true' : 'false');
+
+                card.addEventListener('dragstart', function(e) {
+                    if (!editMode) { e.preventDefault(); return; }
+                    dragSrcIdx = parseInt(wrapper.dataset.toolIdx);
+                    wrapper.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', dragSrcIdx);
+                });
+
+                card.addEventListener('dragend', function() {
+                    wrapper.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    dragSrcIdx = null;
+                });
+
+                wrapper.addEventListener('dragover', function(e) {
+                    if (!editMode) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    // Highlight drop target
+                    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    wrapper.classList.add('drag-over');
+                });
+
+                wrapper.addEventListener('dragleave', function() {
+                    wrapper.classList.remove('drag-over');
+                });
+
+                wrapper.addEventListener('drop', function(e) {
+                    if (!editMode) return;
+                    e.preventDefault();
+                    wrapper.classList.remove('drag-over');
+
+                    const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                    const toIdx = parseInt(wrapper.dataset.toolIdx);
+
+                    if (fromIdx === toIdx || isNaN(fromIdx) || isNaN(toIdx)) return;
+
+                    // Perform the swap in toolsData
+                    const fromTool = toolsData[fromIdx];
+                    const toTool = toolsData[toIdx];
+
+                    // Only allow reordering within the same category
+                    if (fromTool.category !== toTool.category) return;
+
+                    // Find indices within the category
+                    const catTools = toolsData.filter(t => t.category === fromTool.category);
+                    const fromCatIdx = catTools.indexOf(fromTool);
+                    const toCatIdx = catTools.indexOf(toTool);
+
+                    // Remove from old position and insert at new position within the full array
+                    const globalFrom = toolsData.indexOf(fromTool);
+                    toolsData.splice(globalFrom, 1);
+                    const globalTo = toolsData.indexOf(toTool);
+                    toolsData.splice(globalTo, 0, fromTool);
+
+                    saveToStorage();
+                    renderTools();
+                });
+            });
+        }
 
         // Initialize
         renderCategoryTabs();
