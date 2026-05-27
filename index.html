@@ -26,6 +26,7 @@
             --cat-knowledge: #d97706;
             --cat-data: #dc2626;
             --cat-infra: #7c3aed;
+            --cat-secret: #be123c;
         }
 
         * {
@@ -341,6 +342,9 @@
         .tool-card.cat-infra::before { background: var(--cat-infra); }
         .tool-card.cat-infra:hover::before { width: 4px; }
 
+        .tool-card.cat-secret::before { background: var(--cat-secret); }
+        .tool-card.cat-secret:hover::before { width: 4px; }
+
         .tool-icon {
             width: 44px;
             height: 44px;
@@ -360,6 +364,7 @@
         .tool-icon.knowledge { background: linear-gradient(135deg, #fbbf24, #d97706); }
         .tool-icon.data { background: linear-gradient(135deg, #f87171, #dc2626); }
         .tool-icon.infra { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+        .tool-icon.secret { background: linear-gradient(135deg, #fb7185, #be123c); }
 
         .tool-info {
             flex: 1;
@@ -494,6 +499,7 @@
         .tool-card-child.cat-knowledge .child-dot { background: var(--cat-knowledge); }
         .tool-card-child.cat-data .child-dot { background: var(--cat-data); }
         .tool-card-child.cat-infra .child-dot { background: var(--cat-infra); }
+        .tool-card-child.cat-secret .child-dot { background: var(--cat-secret); }
 
         .tool-card-child .child-name {
             font-size: 13px;
@@ -1016,8 +1022,167 @@
         .pwd-box .btn-cancel { background: #f3f4f6; color: var(--text); }
         .pwd-box .btn-cancel:hover { background: #e5e7eb; }
 
-        /* Drag & Drop Sort */
-        .tool-card-wrapper.dragging {
+        /* ============ 秘钥表格页 ============ */
+        .vault-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #f0f2f5;
+            z-index: 400;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .vault-overlay.show { display: flex; }
+
+        .vault-header {
+            background: var(--header-bg);
+            color: #fff;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .vault-header-left { display: flex; align-items: center; gap: 12px; }
+        .vault-dept-tag {
+            background: rgba(190,18,60,0.25);
+            color: #fda4af;
+            border: 1px solid rgba(190,18,60,0.4);
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .vault-header-right { display: flex; align-items: center; gap: 10px; }
+        .vault-btn {
+            padding: 7px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .vault-btn-add { background: #be123c; color: #fff; }
+        .vault-btn-add:hover { background: #9f1239; }
+        .vault-btn-chgpwd { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .vault-btn-chgpwd:hover { background: rgba(255,255,255,0.22); }
+        .vault-btn-close { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .vault-btn-close:hover { background: rgba(255,255,255,0.22); }
+
+        .vault-body { flex: 1; padding: 28px 32px; }
+
+        .vault-table-wrap {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        .vault-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .vault-table thead tr {
+            background: #1e1b4b;
+            color: #fff;
+        }
+        .vault-table th {
+            padding: 14px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: left;
+            letter-spacing: 0.5px;
+        }
+        .vault-table th:last-child { text-align: center; width: 80px; }
+        .vault-table tbody tr {
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.15s;
+        }
+        .vault-table tbody tr:last-child { border-bottom: none; }
+        .vault-table tbody tr:hover { background: #fdf2f4; }
+        .vault-table td {
+            padding: 10px 6px 10px 8px;
+            vertical-align: middle;
+        }
+        .vault-cell-input {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1.5px solid transparent;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            background: transparent;
+            color: var(--text);
+            transition: var(--transition);
+            outline: none;
+        }
+        .vault-cell-input:hover { border-color: #e5e7eb; background: #fafafa; }
+        .vault-cell-input:focus { border-color: var(--cat-secret); background: #fff; box-shadow: 0 0 0 3px rgba(190,18,60,0.1); }
+        .vault-cell-pwd { font-family: monospace; letter-spacing: 2px; }
+        .vault-cell-url { color: #4f46e5; }
+
+        .vault-td-action { text-align: center; }
+        .vault-del-btn {
+            width: 28px; height: 28px; border-radius: 6px; border: none;
+            background: #fee2e2; color: #dc2626;
+            cursor: pointer; font-size: 14px;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: var(--transition);
+        }
+        .vault-del-btn:hover { background: #dc2626; color: #fff; }
+
+        .vault-empty {
+            text-align: center; padding: 48px; color: var(--text-secondary); font-size: 15px;
+        }
+
+        /* 密码修改弹窗 */
+        .chgpwd-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+        }
+        .chgpwd-overlay.show { display: flex; }
+        .chgpwd-box {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 28px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .chgpwd-box h3 { font-size: 17px; margin-bottom: 16px; color: var(--text); }
+        .chgpwd-group { margin-bottom: 12px; }
+        .chgpwd-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .chgpwd-group input {
+            width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 6px;
+            font-size: 14px; font-family: inherit; outline: none; transition: var(--transition);
+        }
+        .chgpwd-group input:focus { border-color: var(--cat-secret); box-shadow: 0 0 0 3px rgba(190,18,60,0.1); }
+        .chgpwd-error { color: #dc2626; font-size: 13px; min-height: 18px; margin: 6px 0; }
+        .chgpwd-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+        /* 秘钥密码验证弹窗 */
+        .secret-pwd-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 450;
+            align-items: center;
+            justify-content: center;
+        }
+        .secret-pwd-overlay.show { display: flex; }
+
+        /* Drag & Drop Sort */        .tool-card-wrapper.dragging {
             opacity: 0.4;
             transform: scale(0.97);
         }
@@ -1214,6 +1379,63 @@
     <footer class="footer">
         <p>&copy; 2026 一鲸环保 · 内部管理后台 · 如有问题请联系 IT 支持</p>
     </footer>
+
+    <!-- ===== 秘钥密码验证弹窗 ===== -->
+    <div class="secret-pwd-overlay" id="secretPwdOverlay">
+        <div class="pwd-box">
+            <h3>🔐 秘钥库访问验证</h3>
+            <p class="pwd-hint" id="secretPwdHint">请输入访问密码</p>
+            <input type="password" id="secretPwdInput" placeholder="输入密码" autocomplete="off">
+            <div class="pwd-error" id="secretPwdError"></div>
+            <div class="pwd-btns">
+                <button class="btn-cancel" onclick="closeSecretPwd()">取消</button>
+                <button class="btn-confirm" onclick="verifySecretPwd()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 秘钥表格全屏页 ===== -->
+    <div class="vault-overlay" id="vaultOverlay">
+        <div class="vault-header">
+            <div class="vault-header-left">
+                <div class="logo-icon">🔐</div>
+                <span style="font-size:17px;font-weight:600;">秘钥管理</span>
+                <span class="vault-dept-tag" id="vaultDeptTag">部门</span>
+            </div>
+            <div class="vault-header-right">
+                <button class="vault-btn vault-btn-add" onclick="vaultAddRow()">+ 新增一行</button>
+                <button class="vault-btn vault-btn-chgpwd" onclick="openChangePwd()">🔑 修改密码</button>
+                <button class="vault-btn vault-btn-close" onclick="closeVault()">← 返回</button>
+            </div>
+        </div>
+        <div class="vault-body">
+            <div class="vault-table-wrap" id="vaultTableWrap"></div>
+        </div>
+    </div>
+
+    <!-- ===== 修改密码弹窗 ===== -->
+    <div class="chgpwd-overlay" id="chgpwdOverlay">
+        <div class="chgpwd-box">
+            <h3>🔑 修改访问密码</h3>
+            <div class="chgpwd-group">
+                <label>当前密码</label>
+                <input type="password" id="chgOldPwd" placeholder="输入当前密码">
+            </div>
+            <div class="chgpwd-group">
+                <label>新密码</label>
+                <input type="password" id="chgNewPwd" placeholder="输入新密码">
+            </div>
+            <div class="chgpwd-group">
+                <label>确认新密码</label>
+                <input type="password" id="chgConfirmPwd" placeholder="再次输入新密码">
+            </div>
+            <div class="chgpwd-error" id="chgpwdError"></div>
+            <div class="chgpwd-actions">
+                <button class="btn btn-secondary" onclick="closeChangePwd()">取消</button>
+                <button class="btn btn-danger" onclick="confirmChangePwd()">确认修改</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ============ 工具数据配置 ============
@@ -1493,6 +1715,23 @@
                 status: 'online',
                 tags: ['安全', '服务器', '审计']
             },
+
+            // ---- 秘钥管理 ----
+            {
+                name: '秘钥管理',
+                desc: '各部门平台账号与密码管理',
+                url: '#',
+                category: 'secret',
+                icon: '钥',
+                iconClass: 'secret',
+                catClass: 'cat-secret',
+                status: 'online',
+                tags: ['秘钥', '密码', '账号', '安全'],
+                secretChildren: [
+                    { name: '运维部', key: 'ops' },
+                    { name: '试剂部', key: 'reagent' },
+                ]
+            },
         ];
 
         const categories = [
@@ -1502,6 +1741,7 @@
             { key: 'knowledge', label: '知识管理', icon: '📚', color: '#d97706' },
             { key: 'data', label: '数据分析', icon: '📊', color: '#dc2626' },
             { key: 'infra', label: '基础设施', icon: '🖥️', color: '#7c3aed' },
+            { key: 'secret', label: '秘钥管理', icon: '🔐', color: '#be123c' },
         ];
 
         // ============ 初始化 ============
@@ -1549,10 +1789,17 @@
                     if (selfMatch) return true;
                     // Also match if any child matches
                     if (t.children) {
-                        return t.children.some(c =>
+                        const childMatch = t.children.some(c =>
                             c.name.toLowerCase().includes(q) ||
                             (c.tags && c.tags.some(tag => tag.toLowerCase().includes(q)))
                         );
+                        if (childMatch) return true;
+                    }
+                    if (t.secretChildren) {
+                        const secretMatch = t.secretChildren.some(c =>
+                            c.name.toLowerCase().includes(q)
+                        );
+                        if (secretMatch) return true;
                     }
                     return false;
                 });
@@ -1594,7 +1841,8 @@
                         : '<span class="tool-status online" title="正常运行"></span>';
 
                     const globalIdx = toolsData.indexOf(tool);
-                    const hasChildren = tool.children && tool.children.length > 0;
+                    const hasSecretChildren = tool.secretChildren && tool.secretChildren.length > 0;
+                    const hasChildren = (tool.children && tool.children.length > 0) || hasSecretChildren;
                     const isExpanded = expandedItems.has(globalIdx);
 
                     html += `
@@ -1625,16 +1873,32 @@
                     if (hasChildren) {
                         html += `<div class="sub-items-wrapper${isExpanded ? ' expanded' : ''}" id="subItems${globalIdx}">`;
                         if (isExpanded) {
-                            tool.children.forEach(child => {
-                                html += `
-                                <a href="${child.url}" class="tool-card-child ${tool.catClass}" target="_blank" rel="noopener">
-                                    <span class="child-dot"></span>
-                                    <span class="child-name">${child.name}</span>
-                                    <svg class="child-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="9 18 15 12 9 6"/>
-                                    </svg>
-                                </a>`;
-                            });
+                            // Render secretChildren (秘钥子菜单)
+                            if (hasSecretChildren && tool.secretChildren) {
+                                tool.secretChildren.forEach(child => {
+                                    html += `
+                                    <a href="javascript:void(0)" class="tool-card-child ${tool.catClass}" rel="noopener" onclick="event.preventDefault();openSecretChild('${child.key}','${child.name}');">
+                                        <span class="child-dot"></span>
+                                        <span class="child-name">🔐 ${child.name}</span>
+                                        <svg class="child-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="9 18 15 12 9 6"/>
+                                        </svg>
+                                    </a>`;
+                                });
+                            }
+                            // Render regular children
+                            if (tool.children) {
+                                tool.children.forEach(child => {
+                                    html += `
+                                    <a href="${child.url}" class="tool-card-child ${tool.catClass}" target="_blank" rel="noopener">
+                                        <span class="child-dot"></span>
+                                        <span class="child-name">${child.name}</span>
+                                        <svg class="child-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="9 18 15 12 9 6"/>
+                                        </svg>
+                                    </a>`;
+                                });
+                            }
                         }
                         html += `</div>`;
                     }
@@ -1650,7 +1914,7 @@
         }
 
         function updateStats() {
-            const total = toolsData.reduce((sum, t) => sum + 1 + (t.children ? t.children.length : 0), 0);
+            const total = toolsData.reduce((sum, t) => sum + 1 + (t.children ? t.children.length : 0) + (t.secretChildren ? t.secretChildren.length : 0), 0);
             document.getElementById('totalTools').textContent = total;
             document.getElementById('onlineTools').textContent =
                 toolsData.filter(t => t.status === 'online').length + 8;
@@ -2105,6 +2369,222 @@
                 });
             });
         }
+
+        // ============ 秘钥管理逻辑 ============
+        let secretPendingKey = null;  // 当前等待验证的部门 key
+        let secretPendingName = '';   // 当前等待验证的部门名称
+        let vaultCurrentKey = null;   // 当前打开的 vault 部门 key
+        let vaultCurrentName = '';   // 当前打开的 vault 部门名称
+
+        // 获取部门密码（localStorage），首次返回 null
+        function getSecretPwd(deptKey) {
+            return localStorage.getItem('secret_pwd_' + deptKey);
+        }
+        function setSecretPwd(deptKey, pwd) {
+            localStorage.setItem('secret_pwd_' + deptKey, pwd);
+        }
+
+        // 获取部门秘钥数据（localStorage）
+        function getVaultData(deptKey) {
+            const raw = localStorage.getItem('secret_vault_' + deptKey);
+            if (!raw) return [];
+            try { return JSON.parse(raw); } catch(e) { return []; }
+        }
+        function setVaultData(deptKey, data) {
+            localStorage.setItem('secret_vault_' + deptKey, JSON.stringify(data));
+        }
+
+        // 点击秘钥子菜单 → 弹出密码验证
+        function openSecretChild(deptKey, deptName) {
+            secretPendingKey = deptKey;
+            secretPendingName = deptName;
+            const pwd = getSecretPwd(deptKey);
+            if (!pwd) {
+                // 首次访问，提示设置密码
+                document.getElementById('secretPwdHint').textContent = '首次访问，请设置访问密码';
+                document.getElementById('secretPwdInput').placeholder = '设置新密码';
+            } else {
+                document.getElementById('secretPwdHint').textContent = '请输入「' + deptName + '」访问密码';
+                document.getElementById('secretPwdInput').placeholder = '输入密码';
+            }
+            document.getElementById('secretPwdError').textContent = '';
+            document.getElementById('secretPwdInput').value = '';
+            document.getElementById('secretPwdOverlay').classList.add('show');
+            setTimeout(() => document.getElementById('secretPwdInput').focus(), 100);
+        }
+
+        // 验证密码
+        function verifySecretPwd() {
+            const input = document.getElementById('secretPwdInput').value;
+            if (!input) {
+                document.getElementById('secretPwdError').textContent = '请输入密码';
+                return;
+            }
+            const saved = getSecretPwd(secretPendingKey);
+            if (!saved) {
+                // 首次设置密码
+                if (input.length < 4) {
+                    document.getElementById('secretPwdError').textContent = '密码至少4位';
+                    return;
+                }
+                setSecretPwd(secretPendingKey, input);
+                document.getElementById('secretPwdOverlay').classList.remove('show');
+                openVault(secretPendingKey, secretPendingName);
+            } else if (input === saved) {
+                document.getElementById('secretPwdOverlay').classList.remove('show');
+                openVault(secretPendingKey, secretPendingName);
+            } else {
+                document.getElementById('secretPwdError').textContent = '密码错误，请重试';
+                document.getElementById('secretPwdInput').value = '';
+                document.getElementById('secretPwdInput').focus();
+            }
+        }
+
+        function closeSecretPwd() {
+            document.getElementById('secretPwdOverlay').classList.remove('show');
+        }
+
+        // Enter 键确认密码
+        document.getElementById('secretPwdInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') verifySecretPwd();
+        });
+        // 点击遮罩关闭
+        document.getElementById('secretPwdOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeSecretPwd();
+        });
+
+        // 打开 vault 表格页
+        function openVault(deptKey, deptName) {
+            vaultCurrentKey = deptKey;
+            vaultCurrentName = deptName;
+            document.getElementById('vaultDeptTag').textContent = deptName;
+            renderVaultTable();
+            document.getElementById('vaultOverlay').classList.add('show');
+        }
+
+        // 渲染秘钥表格
+        function renderVaultTable() {
+            const data = getVaultData(vaultCurrentKey);
+            const wrap = document.getElementById('vaultTableWrap');
+
+            if (data.length === 0) {
+                wrap.innerHTML = '<div class="vault-empty">暂无数据，点击「+ 新增一行」添加</div>';
+                return;
+            }
+
+            let html = `<table class="vault-table">
+                <thead><tr>
+                    <th style="width:50px;">#</th>
+                    <th>平台</th>
+                    <th>网址</th>
+                    <th>账号</th>
+                    <th>密码</th>
+                    <th>操作</th>
+                </tr></thead><tbody>`;
+
+            data.forEach((row, i) => {
+                html += `<tr data-row="${i}">
+                    <td style="text-align:center;color:#9ca3af;font-size:13px;">${i + 1}</td>
+                    <td><input class="vault-cell-input" value="${escVaultVal(row.platform)}" data-field="platform" data-row="${i}" onfocus="this.select()"></td>
+                    <td><input class="vault-cell-input vault-cell-url" value="${escVaultVal(row.url)}" data-field="url" data-row="${i}" onfocus="this.select()"></td>
+                    <td><input class="vault-cell-input" value="${escVaultVal(row.account)}" data-field="account" data-row="${i}" onfocus="this.select()"></td>
+                    <td><input class="vault-cell-input vault-cell-pwd" value="${escVaultVal(row.password)}" data-field="password" data-row="${i}" type="password" onfocus="this.select();this.type='text'" onblur="this.type='password'"></td>
+                    <td class="vault-td-action"><button class="vault-del-btn" onclick="vaultDelRow(${i})" title="删除">✕</button></td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            wrap.innerHTML = html;
+
+            // 绑定输入事件 - 自动保存
+            wrap.querySelectorAll('.vault-cell-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const rowIdx = parseInt(this.dataset.row);
+                    const field = this.dataset.field;
+                    const d = getVaultData(vaultCurrentKey);
+                    if (d[rowIdx]) {
+                        d[rowIdx][field] = this.value;
+                        setVaultData(vaultCurrentKey, d);
+                    }
+                });
+            });
+        }
+
+        // HTML 转义
+        function escVaultVal(str) {
+            if (!str) return '';
+            return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        // 新增一行
+        function vaultAddRow() {
+            const data = getVaultData(vaultCurrentKey);
+            data.push({ platform: '', url: '', account: '', password: '' });
+            setVaultData(vaultCurrentKey, data);
+            renderVaultTable();
+            // 滚到底部并聚焦新行
+            const wrap = document.getElementById('vaultTableWrap');
+            wrap.scrollTop = wrap.scrollHeight;
+            const inputs = wrap.querySelectorAll('.vault-cell-input[data-field="platform"]');
+            if (inputs.length > 0) inputs[inputs.length - 1].focus();
+        }
+
+        // 删除一行
+        function vaultDelRow(idx) {
+            const data = getVaultData(vaultCurrentKey);
+            const name = data[idx].platform || '第' + (idx + 1) + '行';
+            if (!confirm('确定删除「' + name + '」？此操作不可撤销。')) return;
+            data.splice(idx, 1);
+            setVaultData(vaultCurrentKey, data);
+            renderVaultTable();
+        }
+
+        // 关闭 vault 页
+        function closeVault() {
+            document.getElementById('vaultOverlay').classList.remove('show');
+        }
+
+        // ============ 修改密码 ============
+        function openChangePwd() {
+            document.getElementById('chgOldPwd').value = '';
+            document.getElementById('chgNewPwd').value = '';
+            document.getElementById('chgConfirmPwd').value = '';
+            document.getElementById('chgpwdError').textContent = '';
+            document.getElementById('chgpwdOverlay').classList.add('show');
+            setTimeout(() => document.getElementById('chgOldPwd').focus(), 100);
+        }
+
+        function closeChangePwd() {
+            document.getElementById('chgpwdOverlay').classList.remove('show');
+        }
+
+        function confirmChangePwd() {
+            const old = document.getElementById('chgOldPwd').value;
+            const newPwd = document.getElementById('chgNewPwd').value;
+            const confirm = document.getElementById('chgConfirmPwd').value;
+            const saved = getSecretPwd(vaultCurrentKey);
+
+            if (old !== saved) {
+                document.getElementById('chgpwdError').textContent = '当前密码错误';
+                return;
+            }
+            if (newPwd.length < 4) {
+                document.getElementById('chgpwdError').textContent = '新密码至少4位';
+                return;
+            }
+            if (newPwd !== confirm) {
+                document.getElementById('chgpwdError').textContent = '两次输入的新密码不一致';
+                return;
+            }
+            setSecretPwd(vaultCurrentKey, newPwd);
+            closeChangePwd();
+            alert('密码修改成功！');
+        }
+
+        // 点击遮罩关闭修改密码弹窗
+        document.getElementById('chgpwdOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeChangePwd();
+        });
 
         // Initialize
         renderCategoryTabs();
