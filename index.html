@@ -2040,8 +2040,17 @@
         if (savedData) {
             try {
                 const parsed = JSON.parse(savedData);
+                // 保留原始数据中的特殊字段（如 secretChildren），防止 localStorage 旧数据丢失这些字段
+                const defaultMap = {};
+                toolsData.forEach(t => { defaultMap[t.name] = t; });
                 toolsData.length = 0;
-                parsed.forEach(t => toolsData.push(t));
+                parsed.forEach(t => {
+                    const orig = defaultMap[t.name];
+                    if (orig && orig.secretChildren && !t.secretChildren) {
+                        t.secretChildren = orig.secretChildren;
+                    }
+                    toolsData.push(t);
+                });
             } catch(e) {}
         }
 
@@ -2116,6 +2125,10 @@
                 tags: editingTags,
             };
             if (editingChildren.length > 0) tool.children = editingChildren;
+            // 保留 secretChildren（秘钥子菜单不通过编辑弹窗修改）
+            if (editingIndex >= 0 && toolsData[editingIndex].secretChildren) {
+                tool.secretChildren = toolsData[editingIndex].secretChildren;
+            }
 
             if (!tool.name) { alert('请输入工具名称'); return; }
 
