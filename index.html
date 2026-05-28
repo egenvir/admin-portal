@@ -2035,27 +2035,34 @@
             renderTools();
         }
 
-        // Load from localStorage
+        // Load from localStorage (带版本校验，防止旧数据污染)
+        const DATA_VERSION = 2; // 每次修改 toolsData 结构时递增
         const savedData = localStorage.getItem('admin_portal_tools');
         if (savedData) {
             try {
                 const parsed = JSON.parse(savedData);
-                // 保留原始数据中的特殊字段（如 secretChildren），防止 localStorage 旧数据丢失这些字段
-                const defaultMap = {};
-                toolsData.forEach(t => { defaultMap[t.name] = t; });
-                toolsData.length = 0;
-                parsed.forEach(t => {
-                    const orig = defaultMap[t.name];
-                    if (orig && orig.secretChildren && !t.secretChildren) {
-                        t.secretChildren = orig.secretChildren;
-                    }
-                    toolsData.push(t);
-                });
+                // 如果版本号不匹配，丢弃旧数据，使用原始数据
+                if (parsed._version && parsed._version >= DATA_VERSION && Array.isArray(parsed.data)) {
+                    toolsData.length = 0;
+                    parsed.data.forEach(t => toolsData.push(t));
+                } else if (Array.isArray(parsed)) {
+                    // 旧格式（无版本号），尝试兼容：保留原始数据中的特殊字段
+                    const defaultMap = {};
+                    toolsData.forEach(t => { defaultMap[t.name] = t; });
+                    toolsData.length = 0;
+                    parsed.forEach(t => {
+                        const orig = defaultMap[t.name];
+                        if (orig && orig.secretChildren && !t.secretChildren) {
+                            t.secretChildren = orig.secretChildren;
+                        }
+                        toolsData.push(t);
+                    });
+                }
             } catch(e) {}
         }
 
         function saveToStorage() {
-            localStorage.setItem('admin_portal_tools', JSON.stringify(toolsData));
+            localStorage.setItem('admin_portal_tools', JSON.stringify({ _version: DATA_VERSION, data: toolsData }));
         }
 
         function openEditModal(idx) {
