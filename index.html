@@ -1394,6 +1394,8 @@
 
     <!-- SheetJS CDN for Excel import -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
     <!-- Footer -->
     <footer class="footer">
@@ -2414,12 +2416,18 @@
         }
 
         // ============ 秘钥管理逻辑 ============
-        let secretPendingKey = null;  // 当前等待验证的部门 key
-        let secretPendingName = '';   // 当前等待验证的部门名称
-        let vaultCurrentKey = null;   // 当前打开的 vault 部门 key
-        let vaultCurrentName = '';   // 当前打开的 vault 部门名称
+        let secretPendingKey = null;
+        let secretPendingName = '';
+        let vaultCurrentKey = null;
+        let vaultCurrentName = '';
+        let vaultCacheData = [];  // 当前展示的数据缓存
 
-        // 获取部门密码（localStorage），首次返回 null
+        // === Supabase 初始化 ===
+        const SUPABASE_URL = 'https://wtlatcusiujfbhfsmtze.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_PULq6QIAdCJzl6bd4jD8_Q_fJJRtDoc';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 部门密码仍然存在 localStorage（本地凭据）
         function getSecretPwd(deptKey) {
             return localStorage.getItem('secret_pwd_' + deptKey);
         }
@@ -2427,14 +2435,31 @@
             localStorage.setItem('secret_pwd_' + deptKey, pwd);
         }
 
-        // 获取部门秘钥数据（localStorage）
-        function getVaultData(deptKey) {
-            const raw = localStorage.getItem('secret_vault_' + deptKey);
-            if (!raw) return [];
-            try { return JSON.parse(raw); } catch(e) { return []; }
+        // 从 Supabase 拉取数据
+        async function getVaultData(deptKey) {
+            const { data, error } = await sb
+                .from('vault_entries')
+                .select('*')
+                .eq('dept_key', deptKey)
+                .order('id', { ascending: true });
+            if (error) { console.error('getVaultData:', error); return []; }
+            return data || [];
         }
-        function setVaultData(deptKey, data) {
-            localStorage.setItem('secret_vault_' + deptKey, JSON.stringify(data));
+
+        // 批量保存（全量替换方式：先删后插）
+        async function setVaultData(deptKey, entries) {
+            // 删除旧数据
+            const { error: delErr } = await sb.from('vault_entries').delete().eq('dept_key', deptKey);
+            if (delErr) { console.error('setVaultData del:', delErr); return; }
+            // 插入新数据
+            if (entries.length > 0) {
+                const rows = entries.map(e => ({
+                    dept_key: deptKey, platform: e.platform || '', url: e.url || '',
+                    account: e.account || '', password: e.password || ''
+                }));
+                const { error: insErr } = await sb.from('vault_entries').insert(rows);
+                if (insErr) console.error('setVaultData ins:', insErr);
+            }
         }
 
         // 点击秘钥子菜单 → 弹出密码验证
@@ -2497,17 +2522,19 @@
         });
 
         // 打开 vault 表格页
-        function openVault(deptKey, deptName) {
+        async function openVault(deptKey, deptName) {
             vaultCurrentKey = deptKey;
             vaultCurrentName = deptName;
             document.getElementById('vaultDeptTag').textContent = deptName;
-            renderVaultTable();
+            document.getElementById('vaultTableWrap').innerHTML = '<div class="vault-empty">加载中...</div>';
             document.getElementById('vaultOverlay').classList.add('show');
+            vaultCacheData = await getVaultData(deptKey);
+            renderVaultTable();
         }
 
         // 渲染秘钥表格
         function renderVaultTable() {
-            const data = getVaultData(vaultCurrentKey);
+            const data = vaultCacheData;
             const wrap = document.getElementById('vaultTableWrap');
 
             if (data.length === 0) {
@@ -2526,12 +2553,12 @@
                 </tr></thead><tbody>`;
 
             data.forEach((row, i) => {
-                html += `<tr data-row="${i}">
+                html += `<tr data-row="${i}" data-id="${row.id}">
                     <td style="text-align:center;color:#9ca3af;font-size:13px;">${i + 1}</td>
-                    <td><input class="vault-cell-input" value="${escVaultVal(row.platform)}" data-field="platform" data-row="${i}" onfocus="this.select()"></td>
-                    <td><input class="vault-cell-input vault-cell-url" value="${escVaultVal(row.url)}" data-field="url" data-row="${i}" onfocus="this.select()"></td>
-                    <td><input class="vault-cell-input" value="${escVaultVal(row.account)}" data-field="account" data-row="${i}" onfocus="this.select()"></td>
-                    <td><input class="vault-cell-input vault-cell-pwd" value="${escVaultVal(row.password)}" data-field="password" data-row="${i}" type="password" onfocus="this.select();this.type='text'" onblur="this.type='password'"></td>
+                    <td><input class="vault-cell-input" value="${escVaultVal(row.platform)}" data-field="platform" data-row="${i}" data-id="${row.id}" onfocus="this.select()"></td>
+                    <td><input class="vault-cell-input vault-cell-url" value="${escVaultVal(row.url)}" data-field="url" data-row="${i}" data-id="${row.id}" onfocus="this.select()"></td>
+                    <td><input class="vault-cell-input" value="${escVaultVal(row.account)}" data-field="account" data-row="${i}" data-id="${row.id}" onfocus="this.select()"></td>
+                    <td><input class="vault-cell-input vault-cell-pwd" value="${escVaultVal(row.password)}" data-field="password" data-row="${i}" data-id="${row.id}" type="password" onfocus="this.select();this.type='text'" onblur="this.type='password'"></td>
                     <td class="vault-td-action"><button class="vault-del-btn" onclick="vaultDelRow(${i})" title="删除">✕</button></td>
                 </tr>`;
             });
@@ -2539,15 +2566,13 @@
             html += '</tbody></table>';
             wrap.innerHTML = html;
 
-            // 绑定输入事件 - 自动保存
+            // 绑定输入事件 — 修改缓存
             wrap.querySelectorAll('.vault-cell-input').forEach(input => {
                 input.addEventListener('input', function() {
                     const rowIdx = parseInt(this.dataset.row);
                     const field = this.dataset.field;
-                    const d = getVaultData(vaultCurrentKey);
-                    if (d[rowIdx]) {
-                        d[rowIdx][field] = this.value;
-                        setVaultData(vaultCurrentKey, d);
+                    if (vaultCacheData[rowIdx]) {
+                        vaultCacheData[rowIdx][field] = this.value;
                     }
                 });
             });
@@ -2559,13 +2584,17 @@
             return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         }
 
-        // 新增一行
-        function vaultAddRow() {
-            const data = getVaultData(vaultCurrentKey);
-            data.push({ platform: '', url: '', account: '', password: '' });
-            setVaultData(vaultCurrentKey, data);
+        // 新增一行（本地缓存 + 实时写 Supabase）
+        async function vaultAddRow() {
+            const newRow = { platform: '', url: '', account: '', password: '' };
+            // 写入 Supabase
+            const { data, error } = await sb.from('vault_entries').insert({
+                dept_key: vaultCurrentKey, platform: '', url: '', account: '', password: ''
+            }).select();
+            if (error) { vaultShowToast('新增失败：' + error.message); return; }
+            // 更新缓存
+            vaultCacheData.push(data[0]);
             renderVaultTable();
-            // 滚到底部并聚焦新行
             const wrap = document.getElementById('vaultTableWrap');
             wrap.scrollTop = wrap.scrollHeight;
             const inputs = wrap.querySelectorAll('.vault-cell-input[data-field="platform"]');
@@ -2573,12 +2602,13 @@
         }
 
         // 删除一行
-        function vaultDelRow(idx) {
-            const data = getVaultData(vaultCurrentKey);
-            const name = data[idx].platform || '第' + (idx + 1) + '行';
+        async function vaultDelRow(idx) {
+            const row = vaultCacheData[idx];
+            const name = row.platform || '第' + (idx + 1) + '行';
             if (!confirm('确定删除「' + name + '」？此操作不可撤销。')) return;
-            data.splice(idx, 1);
-            setVaultData(vaultCurrentKey, data);
+            const { error } = await sb.from('vault_entries').delete().eq('id', row.id);
+            if (error) { vaultShowToast('删除失败：' + error.message); return; }
+            vaultCacheData.splice(idx, 1);
             renderVaultTable();
         }
 
@@ -2591,17 +2621,13 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const wb = XLSX.read(data, { type: 'array' });
                     const ws = wb.Sheets[wb.SheetNames[0]];
                     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-                    if (rows.length < 2) {
-                        vaultShowToast('文件内容为空或格式不正确');
-                        return;
-                    }
-                    // 取第一行作为表头，尝试匹配字段
+                    if (rows.length < 2) { vaultShowToast('文件内容为空或格式不正确'); return; }
                     const header = rows[0].map(h => String(h).trim().toLowerCase());
                     const colMap = {
                         platform: findCol(header, ['平台', 'platform', '名称', 'name', '系统', 'system', '应用', 'app']),
@@ -2612,61 +2638,49 @@
                     const parsed = [];
                     for (let i = 1; i < rows.length; i++) {
                         const row = rows[i];
-                        const obj = { platform: '', url: '', account: '', password: '' };
+                        const obj = { dept_key: vaultCurrentKey, platform: '', url: '', account: '', password: '' };
                         for (const [field, colIdx] of Object.entries(colMap)) {
-                            if (colIdx >= 0 && row[colIdx] !== undefined) {
-                                obj[field] = String(row[colIdx]).trim();
-                            }
+                            if (colIdx >= 0 && row[colIdx] !== undefined) obj[field] = String(row[colIdx]).trim();
                         }
-                        // 跳过全空行
-                        if (obj.platform || obj.url || obj.account || obj.password) {
-                            parsed.push(obj);
-                        }
+                        if (obj.platform || obj.url || obj.account || obj.password) parsed.push(obj);
                     }
-                    if (parsed.length === 0) {
-                        vaultShowToast('未识别到有效数据行');
-                        return;
-                    }
-                    // 合并：追加到现有数据
-                    const current = getVaultData(vaultCurrentKey);
-                    const merged = current.concat(parsed);
-                    setVaultData(vaultCurrentKey, merged);
+                    if (parsed.length === 0) { vaultShowToast('未识别到有效数据行'); return; }
+                    const { error } = await sb.from('vault_entries').insert(parsed);
+                    if (error) { vaultShowToast('导入失败：' + error.message); return; }
+                    // 重新拉取
+                    vaultCacheData = await getVaultData(vaultCurrentKey);
                     renderVaultTable();
                     vaultShowToast('成功导入 ' + parsed.length + ' 条数据');
-                } catch(err) {
-                    vaultShowToast('解析文件失败：' + err.message);
-                }
+                } catch(err) { vaultShowToast('解析文件失败：' + err.message); }
             };
             reader.readAsArrayBuffer(file);
             event.target.value = '';
         }
 
         function findCol(headerArr, candidates) {
-            for (const c of candidates) {
-                const idx = headerArr.indexOf(c);
-                if (idx >= 0) return idx;
-            }
+            for (const c of candidates) { const idx = headerArr.indexOf(c); if (idx >= 0) return idx; }
             for (let i = 0; i < headerArr.length; i++) {
-                for (const c of candidates) {
-                    if (headerArr[i].includes(c)) return i;
-                }
+                for (const c of candidates) { if (headerArr[i].includes(c)) return i; }
             }
             return -1;
         }
 
-        // ============ 保存按钮 ============
-        function vaultSaveAll() {
+        // ============ 保存按钮（全量同步到 Supabase） ============
+        async function vaultSaveAll() {
             const inputs = document.querySelectorAll('#vaultTableWrap .vault-cell-input');
-            const data = getVaultData(vaultCurrentKey);
             inputs.forEach(input => {
                 const rowIdx = parseInt(input.dataset.row);
                 const field = input.dataset.field;
-                if (!isNaN(rowIdx) && data[rowIdx]) {
-                    data[rowIdx][field] = input.value;
+                if (!isNaN(rowIdx) && vaultCacheData[rowIdx]) {
+                    vaultCacheData[rowIdx][field] = input.value;
                 }
             });
-            setVaultData(vaultCurrentKey, data);
-            vaultShowToast('数据已保存 ✓');
+            // 全量替换
+            await setVaultData(vaultCurrentKey, vaultCacheData);
+            // 重新拉取以获取正确的 id
+            vaultCacheData = await getVaultData(vaultCurrentKey);
+            renderVaultTable();
+            vaultShowToast('数据已同步到云端 ✓');
         }
 
         function vaultShowToast(msg) {
