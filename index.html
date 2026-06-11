@@ -1077,6 +1077,20 @@
         .vault-btn-chgpwd:hover { background: rgba(255,255,255,0.22); }
         .vault-btn-close { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
         .vault-btn-close:hover { background: rgba(255,255,255,0.22); }
+        .vault-btn-import { background: #2563eb; color: #fff; }
+        .vault-btn-import:hover { background: #1d4ed8; }
+        .vault-btn-save { background: #059669; color: #fff; }
+        .vault-btn-save:hover { background: #047857; }
+
+        /* Toast */
+        .vault-toast {
+            position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+            background: #1e1b4b; color: #fff; padding: 10px 24px; border-radius: 20px;
+            font-size: 14px; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 1.8s forwards; pointer-events: none;
+        }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 
         .vault-body { flex: 1; padding: 28px 32px; }
 
@@ -1378,6 +1392,9 @@
         </div>
     </div>
 
+    <!-- SheetJS CDN for Excel import -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
     <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2026 一鲸环保 · 内部管理后台 · 如有问题请联系 IT 支持</p>
@@ -1407,9 +1424,12 @@
             </div>
             <div class="vault-header-right">
                 <button class="vault-btn vault-btn-add" onclick="vaultAddRow()">+ 新增一行</button>
+                <button class="vault-btn vault-btn-import" id="vaultImportBtn" onclick="vaultImportExcel()">📥 导入Excel</button>
+                <button class="vault-btn vault-btn-save" onclick="vaultSaveAll()">💾 保存</button>
                 <button class="vault-btn vault-btn-chgpwd" onclick="openChangePwd()">🔑 修改密码</button>
                 <button class="vault-btn vault-btn-close" onclick="closeVault()">← 返回</button>
             </div>
+            <input type="file" id="vaultFileInput" accept=".csv,.xlsx,.xls" style="display:none;" onchange="vaultHandleFile(event)">
         </div>
         <div class="vault-body">
             <div class="vault-table-wrap" id="vaultTableWrap"></div>
@@ -2560,6 +2580,103 @@
             data.splice(idx, 1);
             setVaultData(vaultCurrentKey, data);
             renderVaultTable();
+        }
+
+        // ============ Excel 导入 ============
+        function vaultImportExcel() {
+            document.getElementById('vaultFileInput').click();
+        }
+
+        function vaultHandleFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const wb = XLSX.read(data, { type: 'array' });
+                    const ws = wb.Sheets[wb.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+                    if (rows.length < 2) {
+                        vaultShowToast('文件内容为空或格式不正确');
+                        return;
+                    }
+                    // 取第一行作为表头，尝试匹配字段
+                    const header = rows[0].map(h => String(h).trim().toLowerCase());
+                    const colMap = {
+                        platform: findCol(header, ['平台', 'platform', '名称', 'name', '系统', 'system', '应用', 'app']),
+                        url:      findCol(header, ['网址', 'url', '链接', 'link', '地址', 'address', '网站']),
+                        account:  findCol(header, ['账号', 'account', '用户名', 'username', 'user', '登录名', 'login']),
+                        password: findCol(header, ['密码', 'password', 'pwd', 'pass', '密钥', 'secret', 'key']),
+                    };
+                    const parsed = [];
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        const obj = { platform: '', url: '', account: '', password: '' };
+                        for (const [field, colIdx] of Object.entries(colMap)) {
+                            if (colIdx >= 0 && row[colIdx] !== undefined) {
+                                obj[field] = String(row[colIdx]).trim();
+                            }
+                        }
+                        // 跳过全空行
+                        if (obj.platform || obj.url || obj.account || obj.password) {
+                            parsed.push(obj);
+                        }
+                    }
+                    if (parsed.length === 0) {
+                        vaultShowToast('未识别到有效数据行');
+                        return;
+                    }
+                    // 合并：追加到现有数据
+                    const current = getVaultData(vaultCurrentKey);
+                    const merged = current.concat(parsed);
+                    setVaultData(vaultCurrentKey, merged);
+                    renderVaultTable();
+                    vaultShowToast('成功导入 ' + parsed.length + ' 条数据');
+                } catch(err) {
+                    vaultShowToast('解析文件失败：' + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            event.target.value = '';
+        }
+
+        function findCol(headerArr, candidates) {
+            for (const c of candidates) {
+                const idx = headerArr.indexOf(c);
+                if (idx >= 0) return idx;
+            }
+            for (let i = 0; i < headerArr.length; i++) {
+                for (const c of candidates) {
+                    if (headerArr[i].includes(c)) return i;
+                }
+            }
+            return -1;
+        }
+
+        // ============ 保存按钮 ============
+        function vaultSaveAll() {
+            const inputs = document.querySelectorAll('#vaultTableWrap .vault-cell-input');
+            const data = getVaultData(vaultCurrentKey);
+            inputs.forEach(input => {
+                const rowIdx = parseInt(input.dataset.row);
+                const field = input.dataset.field;
+                if (!isNaN(rowIdx) && data[rowIdx]) {
+                    data[rowIdx][field] = input.value;
+                }
+            });
+            setVaultData(vaultCurrentKey, data);
+            vaultShowToast('数据已保存 ✓');
+        }
+
+        function vaultShowToast(msg) {
+            const old = document.querySelector('.vault-toast');
+            if (old) old.remove();
+            const toast = document.createElement('div');
+            toast.className = 'vault-toast';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(function() { toast.remove(); }, 2200);
         }
 
         // 关闭 vault 页
