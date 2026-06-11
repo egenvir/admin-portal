@@ -2455,7 +2455,7 @@
             if (entries.length > 0) {
                 const rows = entries.map(e => ({
                     dept_key: deptKey, platform: e.platform || '', url: e.url || '',
-                    account: e.account || '', password: e.password || ''
+                    account: e.account || '', password: e.password || '', remark: e.remark || ''
                 }));
                 const { error: insErr } = await sb.from('vault_entries').insert(rows);
                 if (insErr) console.error('setVaultData ins:', insErr);
@@ -2549,6 +2549,7 @@
                     <th>网址</th>
                     <th>账号</th>
                     <th>密码</th>
+                    <th>备注</th>
                     <th>操作</th>
                 </tr></thead><tbody>`;
 
@@ -2559,6 +2560,7 @@
                     <td><input class="vault-cell-input vault-cell-url" value="${escVaultVal(row.url)}" data-field="url" data-row="${i}" data-id="${row.id}" onfocus="this.select()"></td>
                     <td><input class="vault-cell-input" value="${escVaultVal(row.account)}" data-field="account" data-row="${i}" data-id="${row.id}" onfocus="this.select()"></td>
                     <td><input class="vault-cell-input vault-cell-pwd" value="${escVaultVal(row.password)}" data-field="password" data-row="${i}" data-id="${row.id}" type="password" onfocus="this.select();this.type='text'" onblur="this.type='password'"></td>
+                    <td><input class="vault-cell-input vault-cell-remark" value="${escVaultVal(row.remark||'')}" data-field="remark" data-row="${i}" data-id="${row.id}" onfocus="this.select()"></td>
                     <td class="vault-td-action"><button class="vault-del-btn" onclick="vaultDelRow(${i})" title="删除">✕</button></td>
                 </tr>`;
             });
@@ -2586,13 +2588,10 @@
 
         // 新增一行（本地缓存 + 实时写 Supabase）
         async function vaultAddRow() {
-            const newRow = { platform: '', url: '', account: '', password: '' };
-            // 写入 Supabase
             const { data, error } = await sb.from('vault_entries').insert({
-                dept_key: vaultCurrentKey, platform: '', url: '', account: '', password: ''
+                dept_key: vaultCurrentKey, platform: '', url: '', account: '', password: '', remark: ''
             }).select();
             if (error) { vaultShowToast('新增失败：' + error.message); return; }
-            // 更新缓存
             vaultCacheData.push(data[0]);
             renderVaultTable();
             const wrap = document.getElementById('vaultTableWrap');
@@ -2634,15 +2633,16 @@
                         url:      findCol(header, ['网址', 'url', '链接', 'link', '地址', 'address', '网站']),
                         account:  findCol(header, ['账号', 'account', '用户名', 'username', 'user', '登录名', 'login']),
                         password: findCol(header, ['密码', 'password', 'pwd', 'pass', '密钥', 'secret', 'key']),
+                        remark:   findCol(header, ['备注', 'remark', 'note', '说明', '描述', 'desc', 'memo']),
                     };
                     const parsed = [];
                     for (let i = 1; i < rows.length; i++) {
                         const row = rows[i];
-                        const obj = { dept_key: vaultCurrentKey, platform: '', url: '', account: '', password: '' };
+                        const obj = { dept_key: vaultCurrentKey, platform: '', url: '', account: '', password: '', remark: '' };
                         for (const [field, colIdx] of Object.entries(colMap)) {
                             if (colIdx >= 0 && row[colIdx] !== undefined) obj[field] = String(row[colIdx]).trim();
                         }
-                        if (obj.platform || obj.url || obj.account || obj.password) parsed.push(obj);
+                        if (obj.platform || obj.url || obj.account || obj.password || obj.remark) parsed.push(obj);
                     }
                     if (parsed.length === 0) { vaultShowToast('未识别到有效数据行'); return; }
                     const { error } = await sb.from('vault_entries').insert(parsed);
